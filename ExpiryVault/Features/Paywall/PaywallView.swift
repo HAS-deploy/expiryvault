@@ -41,6 +41,9 @@ struct PaywallView: View {
             }
             .onAppear {
                 analytics.track(.paywallViewed, properties: ["trigger_source": .source(source)])
+                PortfolioAnalytics.shared.track(PortfolioEvent.paywallViewed, [
+                    "source": String(describing: trigger),
+                ])
             }
             .onChange(of: entitlements.isPremium) { _, newValue in
                 if newValue { dismiss() }
@@ -189,23 +192,39 @@ struct PaywallView: View {
             "trigger_source": .source(source),
             "category": .productTier(tier(of: selectedProductID)) as AnalyticsValue,
         ].compactMapValues { $0 })
+        PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseClick, [
+            "product_id": selectedProductID,
+            "source": String(describing: trigger),
+        ])
         let ok = await purchases.purchase(selectedProductID)
         if ok {
             analytics.track(.purchaseCompleted, properties: [
                 "trigger_source": .source(source),
+            ])
+            PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseSuccess, [
+                "product_id": selectedProductID,
+                "is_sub": selectedProductID != PricingConfig.lifetimeProductID,
+                "source": String(describing: trigger),
             ])
         } else if case let .failed(message) = purchases.state {
             error = message
             analytics.track(.purchaseFailed, properties: [
                 "trigger_source": .source(source),
             ])
+            PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseFailed, [
+                "product_id": selectedProductID,
+                "error": message,
+            ])
         }
     }
 
     private func restore() async {
+        PortfolioAnalytics.shared.track(PortfolioEvent.paywallRestoreClick)
         await purchases.restore()
         if case let .failed(message) = purchases.state {
             error = message
+        } else if purchases.state == .idle {
+            PortfolioAnalytics.shared.track(PortfolioEvent.paywallRestoreSuccess)
         }
     }
 

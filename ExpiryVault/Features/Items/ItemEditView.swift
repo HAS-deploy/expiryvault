@@ -161,6 +161,13 @@ struct ItemEditView: View {
             "category": .category(.init(category)),
             "trigger_source": .source(.detail),
         ])
+        if item == nil {
+            PortfolioAnalytics.shared.track("item.created", [
+                "category": String(describing: category),
+                "reminders_enabled": remindersEnabled,
+                "offset_days_count": allowedOffsets.count,
+            ])
+        }
         dismiss()
     }
 }
