@@ -14,6 +14,7 @@ struct ExpiryVaultApp: App {
         let ent = EntitlementStore()
         _entitlements = StateObject(wrappedValue: ent)
         _purchases = StateObject(wrappedValue: PurchaseManager(entitlements: ent))
+        PortfolioAnalytics.shared.start(appName: "expiryvault")
     }
 
     var body: some Scene {
@@ -29,6 +30,7 @@ struct ExpiryVaultApp: App {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 analytics.track(.appOpen)
+                PortfolioAnalytics.shared.track(PortfolioEvent.sessionStart)
                 appState.incrementSessionCount()
             }
         }
