@@ -49,7 +49,7 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         ITSAppUsesNonExemptEncryption: false
-        PostHogKey: ""
+        PostHogKey: "phc_zsZ6KoWfgoUyVnJEjKi5KC6CuS66xnyQgradTRmqc52s"
         PostHogHost: "https://us.i.posthog.com"
     settings:
       base:
