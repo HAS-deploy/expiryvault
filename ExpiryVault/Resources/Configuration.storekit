@@ -1,0 +1,74 @@
+{
+  "identifier" : "ExpiryVaultStoreKit",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "39.99",
+      "familyShareable" : false,
+      "internalID" : "expiryvault_lifetime",
+      "localizations" : [
+        {
+          "description" : "One-time purchase. Unlimited tracked items, advanced reminder intervals, and all Plus features — forever.",
+          "displayName" : "ExpiryVault Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "expiryvault_lifetime",
+      "referenceName" : "Lifetime Unlock",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {},
+  "subscriptionGroups" : [
+    {
+      "id" : "expiryvault_plus",
+      "localizations" : [],
+      "name" : "ExpiryVault Plus",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "3.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "expiryvault_plus_monthly",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Auto-renewing monthly subscription. Unlimited tracked items + full reminder control.",
+              "displayName" : "ExpiryVault Plus (Monthly)",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "expiryvault_plus_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "ExpiryVault Plus Monthly",
+          "subscriptionGroupID" : "expiryvault_plus",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "29.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "expiryvault_plus_yearly",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Auto-renewing yearly subscription. Unlimited tracked items + full reminder control.",
+              "displayName" : "ExpiryVault Plus (Yearly)",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "expiryvault_plus_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "ExpiryVault Plus Yearly",
+          "subscriptionGroupID" : "expiryvault_plus",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : { "major" : 3, "minor" : 0 }
+}

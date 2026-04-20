@@ -1,0 +1,14 @@
+.DS_Store
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+ExpiryVault.xcodeproj/
+.swiftpm/
+tsconfig.tsbuildinfo
+.env
+.env.local
+*.p8
+*.p12
+*.mobileprovision
