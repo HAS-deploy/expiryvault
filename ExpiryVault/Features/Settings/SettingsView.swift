@@ -27,6 +27,7 @@ struct SettingsView: View {
                 dataSection
                 privacySection
                 aboutSection
+                moreFromUsSection
                 #if DEBUG
                 debugSection
                 #endif
@@ -129,6 +130,22 @@ struct SettingsView: View {
             Link(destination: URL(string: "https://has-deploy.github.io/expiryvault/terms.html")!) {
                 Label("Terms of Use", systemImage: "link")
             }
+        }
+    }
+
+    private var moreFromUsSection: some View {
+        Section {
+            Link(destination: URL(string: "https://apps.apple.com/app/id6762404077")!) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("HouseholdOS").font(.body).foregroundStyle(.primary)
+                    Text("Bills, tasks, documents, members — your home, organized.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            }
+        } header: {
+            Text("More from us")
+        } footer: {
+            Text("Other useful apps from the same team. Tap to open in the App Store.")
         }
     }
 

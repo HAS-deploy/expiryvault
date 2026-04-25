@@ -28,7 +28,12 @@ struct PaywallView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") { dismiss() }
+                    Button("Close") {
+                        PortfolioAnalytics.shared.track(PortfolioEvent.paywallDismissed, [
+                            "source": String(describing: trigger),
+                        ])
+                        dismiss()
+                    }
                 }
             }
             .alert("Couldn't complete purchase", isPresented: Binding(
@@ -49,6 +54,7 @@ struct PaywallView: View {
                 if newValue { dismiss() }
             }
         }
+        .trackScreen("paywall")
     }
 
     // MARK: Subviews
@@ -92,6 +98,10 @@ struct PaywallView: View {
         let selected = selectedProductID == id
         return Button {
             selectedProductID = id
+            PortfolioAnalytics.shared.track("paywall.product_selected", [
+                "product_id": id,
+                "source": String(describing: trigger),
+            ])
         } label: {
             HStack {
                 Image(systemName: selected ? "largecircle.fill.circle" : "circle")
@@ -201,11 +211,19 @@ struct PaywallView: View {
             analytics.track(.purchaseCompleted, properties: [
                 "trigger_source": .source(source),
             ])
+            let product = purchases.product(id: selectedProductID)
+            let price = NSDecimalNumber(decimal: product?.price ?? 0).doubleValue
             PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseSuccess, [
                 "product_id": selectedProductID,
                 "is_sub": selectedProductID != PricingConfig.lifetimeProductID,
                 "source": String(describing: trigger),
+                "revenue_usd": price,
+                "currency": product?.priceFormatStyle.currencyCode ?? "USD",
             ])
+            if !UserDefaults.standard.bool(forKey: "posthog.identified") {
+                PortfolioAnalytics.shared.identifyAfterPurchase(productId: selectedProductID, revenueUsd: price)
+                UserDefaults.standard.set(true, forKey: "posthog.identified")
+            }
         } else if case let .failed(message) = purchases.state {
             error = message
             analytics.track(.purchaseFailed, properties: [

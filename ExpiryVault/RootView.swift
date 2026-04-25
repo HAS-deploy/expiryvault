@@ -39,12 +39,15 @@ struct MainTabView: View {
     var body: some View {
         TabView {
             DashboardView(requestPaywall: requestPaywall)
+                .trackScreen("home")
                 .tabItem { Label("Home", systemImage: "house.fill") }
 
             ItemListView(requestPaywall: requestPaywall)
+                .trackScreen("items")
                 .tabItem { Label("Items", systemImage: "list.bullet.clipboard") }
 
             SettingsView(requestPaywall: requestPaywall)
+                .trackScreen("settings")
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
         }
     }

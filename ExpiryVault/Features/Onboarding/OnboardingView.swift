@@ -13,6 +13,9 @@ struct OnboardingView: View {
                 howItWorksPage.tag(1)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
+            .onAppear {
+                PortfolioAnalytics.shared.track(PortfolioEvent.onboardingStarted)
+            }
 
             HStack {
                 if page > 0 {
@@ -67,6 +70,9 @@ struct OnboardingView: View {
         let granted = await NotificationService.shared.requestAuthorization()
         analytics.track(.onboardingCompleted, properties: [
             "success": .bool(granted),
+        ])
+        PortfolioAnalytics.shared.track(PortfolioEvent.onboardingCompleted, [
+            "notifications_granted": granted,
         ])
         withAnimation { appState.onboardingCompleted = true }
     }

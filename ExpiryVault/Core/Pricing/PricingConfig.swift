@@ -16,8 +16,8 @@ enum PricingConfig {
     // MARK: Fallback display prices
 
     static let monthlyFallbackPrice  = "$3.99"
-    static let yearlyFallbackPrice   = "$29.99"
-    static let lifetimeFallbackPrice = "$39.99"
+    static let yearlyFallbackPrice   = "$34.99"
+    static let lifetimeFallbackPrice = "$49.99"
 
     // MARK: Copy
 

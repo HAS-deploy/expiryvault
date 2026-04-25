@@ -3,7 +3,7 @@
   "nonRenewingSubscriptions" : [],
   "products" : [
     {
-      "displayPrice" : "39.99",
+      "displayPrice" : "49.99",
       "familyShareable" : false,
       "internalID" : "expiryvault_lifetime",
       "localizations" : [
@@ -49,7 +49,7 @@
         {
           "adHocOffers" : [],
           "codeOffers" : [],
-          "displayPrice" : "29.99",
+          "displayPrice" : "34.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "expiryvault_plus_yearly",

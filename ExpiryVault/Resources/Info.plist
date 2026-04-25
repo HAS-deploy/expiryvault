@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>2</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -27,7 +27,7 @@
 	<key>PostHogHost</key>
 	<string>https://us.i.posthog.com</string>
 	<key>PostHogKey</key>
-	<string></string>
+	<string>phc_zsZ6KoWfgoUyVnJEjKi5KC6CuS66xnyQgradTRmqc52s</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
