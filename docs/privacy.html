@@ -17,8 +17,8 @@
 <h2>Notifications</h2>
 <p>If you enable item reminders, ExpiryVault schedules local iOS notifications. The notification payload references the item name you entered on-device. Nothing about the reminder is sent to us or any third party.</p>
 
-<h2>Analytics and tracking</h2>
-<p>ExpiryVault contains no analytics SDKs, no advertising SDKs, and no tracking of any kind. It does not request the App Tracking Transparency permission. The Apple privacy manifest declares "Data Not Collected."</p>
+<h2>Anonymous usage analytics</h2>
+<p>ExpiryVault uses <a href="https://posthog.com/">PostHog</a> to collect anonymous usage events — screen views, taps on key features, and basic crash and performance signals — so we can see which parts of the app are useful and which need work. Events are tied to a random per-install identifier and are <strong>not</strong> linked to your name, email, Apple ID, or any contact details (we don't collect those). The names, dates, photos, and reference codes of items you track are never sent. The app contains no advertising SDKs and does not request the App Tracking Transparency permission.</p>
 
 <h2>Export</h2>
 <p>You can export your own data to a local JSON file from Settings at any time.</p>
