@@ -5,6 +5,11 @@ struct OnboardingView: View {
     @Environment(\.analytics) private var analytics
 
     @State private var page = 0
+    @State private var startedAt: Date = Date()
+    @State private var stepEnteredAt: Date = Date()
+
+    private static let stepNames = ["welcome", "how_it_works"]
+    private static let stepTotal = stepNames.count
 
     var body: some View {
         VStack(spacing: 0) {
@@ -14,7 +19,20 @@ struct OnboardingView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .onAppear {
+                startedAt = Date()
+                stepEnteredAt = startedAt
                 PortfolioAnalytics.shared.track(PortfolioEvent.onboardingStarted)
+                trackViewed(page: 0)
+            }
+            .onChange(of: page) { oldValue, newValue in
+                let now = Date()
+                PortfolioAnalytics.shared.track(PortfolioEvent.onboardingAdvanced, [
+                    "from_step": Self.stepName(oldValue),
+                    "to_step": Self.stepName(newValue),
+                    "seconds_on_step": Int(now.timeIntervalSince(stepEnteredAt)),
+                ])
+                stepEnteredAt = now
+                trackViewed(page: newValue)
             }
 
             HStack {
@@ -73,8 +91,23 @@ struct OnboardingView: View {
         ])
         PortfolioAnalytics.shared.track(PortfolioEvent.onboardingCompleted, [
             "notifications_granted": granted,
+            "total_seconds": Int(Date().timeIntervalSince(startedAt)),
+            "steps_skipped": 0,
         ])
         withAnimation { appState.onboardingCompleted = true }
+    }
+
+    private func trackViewed(page: Int) {
+        PortfolioAnalytics.shared.track(PortfolioEvent.onboardingViewed, [
+            "step": Self.stepName(page),
+            "step_index": page,
+            "step_total": Self.stepTotal,
+        ])
+    }
+
+    private static func stepName(_ index: Int) -> String {
+        guard index >= 0, index < stepNames.count else { return "unknown" }
+        return stepNames[index]
     }
 }
 

@@ -81,6 +81,7 @@ struct ItemListView: View {
             }
         } label: {
             Image(systemName: selectedCategory == nil ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+                .accessibilityLabel("Filter by category")
         }
     }
 

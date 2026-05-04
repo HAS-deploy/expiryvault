@@ -19,6 +19,7 @@ struct ItemEditView: View {
     @State private var remindersEnabled = true
     @State private var offsets: Set<ReminderOffset> = Set(ReminderOffset.defaultsForFreeTier)
     @State private var showPremiumNudge = false
+    @State private var saveSuccessTrigger = 0
 
     var body: some View {
         Form {
@@ -72,6 +73,7 @@ struct ItemEditView: View {
         } message: {
             Text("6- and 3-month reminders are part of ExpiryVault Plus. Upgrade from Settings to enable them.")
         }
+        .sensoryFeedback(.success, trigger: saveSuccessTrigger)
     }
 
     // MARK: Controls
@@ -168,6 +170,7 @@ struct ItemEditView: View {
                 "offset_days_count": allowedOffsets.count,
             ])
         }
+        saveSuccessTrigger &+= 1
         dismiss()
     }
 }

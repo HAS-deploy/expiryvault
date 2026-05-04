@@ -45,6 +45,11 @@ struct ItemDetailView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button("Edit") { editing = true }
             }
+            ToolbarItem(placement: .secondaryAction) {
+                ShareLink(item: ItemShareText.summary(for: item)) {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+            }
         }
         .sheet(isPresented: $editing) {
             NavigationStack { ItemEditView(item: item) }

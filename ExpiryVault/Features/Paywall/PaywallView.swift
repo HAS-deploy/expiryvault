@@ -231,6 +231,7 @@ struct PaywallView: View {
             ])
             PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseFailed, [
                 "product_id": selectedProductID,
+                "reason": message,
                 "error": message,
             ])
         }

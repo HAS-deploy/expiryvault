@@ -127,4 +127,41 @@ final class ExpiryLogicTests: XCTestCase {
     func testFreeTierCapIsTen() {
         XCTAssertEqual(PricingConfig.freeItemLimit, 10)
     }
+
+    // MARK: Share text
+
+    func testShareTextIncludesCoreFields() {
+        let exp = Calendar.current.date(byAdding: .day, value: 14, to: .now)!
+        let item = TrackedItem(
+            name: "Passport",
+            category: .travel,
+            ownerName: "Tony",
+            expirationDate: exp,
+            notes: "Renew via mail-in form",
+            referenceCode: "A12345"
+        )
+        let text = ItemShareText.summary(for: item)
+        XCTAssertTrue(text.contains("Passport"))
+        XCTAssertTrue(text.contains("Travel"))
+        XCTAssertTrue(text.contains("Tony"))
+        XCTAssertTrue(text.contains("A12345"))
+        XCTAssertTrue(text.contains("Renew via mail-in form"))
+        XCTAssertTrue(text.contains("days remaining") || text.contains("day remaining"))
+    }
+
+    func testShareTextOmitsEmptyOptionalFields() {
+        let exp = Calendar.current.date(byAdding: .day, value: 30, to: .now)!
+        let item = TrackedItem(name: "Gym Pass", category: .membership, ownerName: "", expirationDate: exp)
+        let text = ItemShareText.summary(for: item)
+        XCTAssertFalse(text.contains("Owner:"))
+        XCTAssertFalse(text.contains("Reference:"))
+        XCTAssertFalse(text.contains("Notes:"))
+    }
+
+    func testShareTextExpiredCountdown() {
+        let past = Calendar.current.date(byAdding: .day, value: -3, to: .now)!
+        let item = TrackedItem(name: "Old Card", category: .id, ownerName: "", expirationDate: past)
+        let text = ItemShareText.summary(for: item)
+        XCTAssertTrue(text.contains("Expired 3 days ago"))
+    }
 }
