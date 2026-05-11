@@ -67,9 +67,12 @@ final class AppState: ObservableObject {
     func incrementSessionCount() { sessionCount += 1 }
 
     /// Fire the soft upsell once, on a session where the user isn't already
-    /// premium and has enough items to make the pitch meaningful.
-    func shouldShowSoftUpsell(isPremium: Bool, itemCount: Int) -> Bool {
-        guard !isPremium, !softUpsellShown else { return false }
+    /// premium and has enough items to make the pitch meaningful. Suppress
+    /// while the install trial is active — pitching Plus to someone who
+    /// already *has* Plus (via the install trial) is bad UX and pollutes
+    /// the conversion funnel.
+    func shouldShowSoftUpsell(hasPlusAccess: Bool, itemCount: Int) -> Bool {
+        guard !hasPlusAccess, !softUpsellShown else { return false }
         return sessionCount >= PricingConfig.softUpsellSessionThreshold
             && itemCount >= PricingConfig.softUpsellMinItems
     }

@@ -48,7 +48,7 @@ struct ItemEditView: View {
                     ForEach(ReminderOffset.allCases) { offset in
                         reminderToggle(offset)
                     }
-                    if !entitlements.isPremium {
+                    if !entitlements.hasPlusAccess {
                         Text("30 / 7 / 1 day are free. Upgrade to Plus for 6- and 3-month reminders too.")
                             .font(.caption).foregroundStyle(.secondary)
                     }
@@ -79,7 +79,7 @@ struct ItemEditView: View {
     // MARK: Controls
 
     private func reminderToggle(_ offset: ReminderOffset) -> some View {
-        let locked = !offset.isAllowed(premium: entitlements.isPremium)
+        let locked = !offset.isAllowed(premium: entitlements.hasPlusAccess)
         return Toggle(isOn: Binding(
             get: { offsets.contains(offset) && !locked },
             set: { isOn in
@@ -108,7 +108,7 @@ struct ItemEditView: View {
     private func load() {
         guard let item else {
             // New item — apply premium-aware defaults.
-            offsets = Set(entitlements.isPremium
+            offsets = Set(entitlements.hasPlusAccess
                           ? ReminderOffset.defaultsForPremium
                           : ReminderOffset.defaultsForFreeTier)
             return
@@ -126,7 +126,7 @@ struct ItemEditView: View {
     private func save() async {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         // Enforce free-tier offset restriction defensively.
-        let allowedOffsets = offsets.filter { $0.isAllowed(premium: entitlements.isPremium) }
+        let allowedOffsets = offsets.filter { $0.isAllowed(premium: entitlements.hasPlusAccess) }
 
         let target: TrackedItem
         if let existing = item {

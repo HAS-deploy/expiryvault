@@ -45,4 +45,36 @@ enum PricingConfig {
     static let softUpsellSessionThreshold = 3
     /// Minimum item count at which the soft upsell makes sense.
     static let softUpsellMinItems = 2
+
+    // MARK: Trial-determination model (annual intro offer)
+
+    /// Trial-determination model: ExpiryVault uses a 1-month free trial on the
+    /// annual product because tracked items take time to approach their
+    /// expirations — the user needs enough runway to see at least one reminder
+    /// cycle fire before deciding to keep paying.
+    ///
+    /// These constants must agree exactly with:
+    ///   - `Resources/Configuration.storekit` yearly `introductoryOffer` block
+    ///   - The ASC `subscriptionIntroductoryOffers` record on the yearly product
+    static let annualTrialDays: Int = 30
+    static let annualTrialDescription: String = "1-month free trial, then $34.99/year"
+
+    // MARK: 3.1.2(a) disclosures (rendered verbatim by the paywall)
+
+    static let disclosurePaymentCharged =
+        "Payment will be charged to your Apple ID account at confirmation of purchase."
+    static let disclosureAutoRenew =
+        "Subscription automatically renews unless canceled at least 24 hours before the end of the current period."
+    static let disclosureRenewalCharge =
+        "Your account will be charged for renewal within 24 hours prior to the end of the current period."
+    static let disclosureManage =
+        "Subscriptions may be managed and auto-renewal may be turned off by going to the user's Account Settings after purchase."
+    static let disclosureFreeTrial =
+        "If you start a free trial, any unused portion is forfeited if you purchase a subscription before the trial ends."
+
+    // MARK: Legal URLs
+
+    static let privacyPolicyURL = "https://has-deploy.github.io/expiryvault/privacy.html"
+    static let termsOfUseURL    = "https://has-deploy.github.io/expiryvault/terms.html"
+    static let appleStdEULAURL  = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
 }

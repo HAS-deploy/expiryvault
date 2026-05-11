@@ -26,7 +26,7 @@ struct RootView: View {
 
     private func maybeShowSoftUpsell() {
         guard appState.onboardingCompleted else { return }
-        if appState.shouldShowSoftUpsell(isPremium: entitlements.isPremium, itemCount: items.count) {
+        if appState.shouldShowSoftUpsell(hasPlusAccess: entitlements.hasPlusAccess, itemCount: items.count) {
             presentedPaywall = .softUpsell
             appState.softUpsellShown = true
         }

@@ -110,7 +110,7 @@ struct DashboardView: View {
     // MARK: Actions
 
     private func attemptAdd(trigger: TriggerSource) {
-        if !entitlements.isPremium && items.count >= PricingConfig.freeItemLimit {
+        if !entitlements.hasPlusAccess && items.count >= PricingConfig.freeItemLimit {
             analytics.track(.freeLimitHit, properties: ["trigger_source": .source(trigger)])
             requestPaywall(.hardLimit)
             return

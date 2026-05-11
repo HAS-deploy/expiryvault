@@ -53,10 +53,15 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "expiryvault_plus_yearly",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "E5C1B7A2-9F4D-4A8E-B3C6-1D2F8A7E5B40",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1M",
+            "numberOfPeriods" : 1
+          },
           "localizations" : [
             {
-              "description" : "Auto-renewing yearly subscription. Unlimited tracked items + full reminder control.",
+              "description" : "Auto-renewing yearly subscription. 1-month free trial, then unlimited tracked items + full reminder control.",
               "displayName" : "ExpiryVault Plus (Yearly)",
               "locale" : "en_US"
             }

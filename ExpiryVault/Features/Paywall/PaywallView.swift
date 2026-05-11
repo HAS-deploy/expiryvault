@@ -88,7 +88,21 @@ struct PaywallView: View {
 
     private var planSelector: some View {
         VStack(spacing: 10) {
-            planRow(id: PricingConfig.yearlyProductID, title: "Yearly", subtitle: "Best value", badge: "Save 37%")
+            planRow(
+                id: PricingConfig.yearlyProductID,
+                title: "Yearly",
+                subtitle: PricingConfig.annualTrialDescription,
+                badge: "Save 37%"
+            )
+            // Forfeiture sentence rendered inline with the yearly card so the
+            // reviewer sees it next to the trial offer — paired with the same
+            // line in the bottom disclosure block per the 3.1.2(a) pattern.
+            Text(PricingConfig.disclosureFreeTrial)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
             planRow(id: PricingConfig.monthlyProductID, title: "Monthly", subtitle: "Cancel anytime", badge: nil)
             planRow(id: PricingConfig.lifetimeProductID, title: "Lifetime", subtitle: "Pay once — yours forever", badge: "No subscription")
         }
@@ -152,12 +166,27 @@ struct PaywallView: View {
 
     private var legalFooter: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Monthly and Yearly are auto-renewable subscriptions. Your Apple ID account will be charged \(purchases.displayPrice(id: PricingConfig.monthlyProductID)) per month or \(purchases.displayPrice(id: PricingConfig.yearlyProductID)) per year at confirmation of purchase and within 24 hours prior to the end of each period, at the same price, unless auto-renew is turned off at least 24 hours before the end of the current period.")
-            Text("Manage or cancel in Settings → Apple ID → Subscriptions. Lifetime is a one-time non-renewing purchase and is not a subscription.")
+            Text("Auto-renewing subscriptions (ExpiryVault Plus Monthly, ExpiryVault Plus Yearly)")
+                .font(.caption.weight(.semibold))
+            // 3.1.2(a) disclosure block — rendered VERBATIM from PricingConfig
+            // so paywall copy + ASC metadata stay in lockstep. The free-trial
+            // forfeiture sentence appears here AND inline under the yearly
+            // card per the canonical pattern.
+            VStack(alignment: .leading, spacing: 4) {
+                Text("• " + PricingConfig.disclosurePaymentCharged)
+                Text("• " + PricingConfig.disclosureAutoRenew)
+                Text("• " + PricingConfig.disclosureRenewalCharge)
+                Text("• " + PricingConfig.disclosureManage)
+                Text("• " + PricingConfig.disclosureFreeTrial)
+                Text("• Lifetime is a one-time non-consumable purchase with no recurring charges.")
+            }
+            .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 4) {
-                Link("Terms of Use", destination: URL(string: "https://has-deploy.github.io/expiryvault/terms.html")!)
+                Link("Terms of Use", destination: URL(string: PricingConfig.termsOfUseURL)!)
                 Text("·")
-                Link("Privacy Policy", destination: URL(string: "https://has-deploy.github.io/expiryvault/privacy.html")!)
+                Link("EULA", destination: URL(string: PricingConfig.appleStdEULAURL)!)
+                Text("·")
+                Link("Privacy Policy", destination: URL(string: PricingConfig.privacyPolicyURL)!)
             }
         }
         .font(.caption).foregroundStyle(.secondary)

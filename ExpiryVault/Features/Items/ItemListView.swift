@@ -103,7 +103,7 @@ struct ItemListView: View {
     }
 
     private func attemptAdd() {
-        if !entitlements.isPremium && allItems.count >= PricingConfig.freeItemLimit {
+        if !entitlements.hasPlusAccess && allItems.count >= PricingConfig.freeItemLimit {
             analytics.track(.freeLimitHit, properties: ["trigger_source": .source(.list)])
             requestPaywall(.hardLimit)
             return
