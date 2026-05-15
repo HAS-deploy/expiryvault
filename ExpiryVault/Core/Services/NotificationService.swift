@@ -41,6 +41,15 @@ final class NotificationService {
     func reschedule(for item: TrackedItem) async {
         await cancel(for: item.id)
         guard item.remindersEnabled, !item.isArchived else { return }
+        // S3: request authorization lazily at the moment the user actually
+        // tries to schedule their first reminder. If the user previously
+        // denied, the system returns false and we still proceed to *attempt*
+        // the add — iOS will silently drop the request rather than show, and
+        // Settings exposes the "Open Settings" deep link for re-enabling.
+        let status = await currentAuthorization()
+        if status == .notDetermined {
+            _ = await requestAuthorization()
+        }
         let now = Date()
         for offset in item.reminderOffsets {
             guard let fire = fireDate(for: item, offsetDays: offset.rawValue), fire > now else { continue }

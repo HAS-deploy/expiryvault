@@ -64,6 +64,10 @@ final class EntitlementStore: ObservableObject {
             default:                              return "Plus"
             }
         }
+        if installTrialActive {
+            let days = installTrialDaysRemaining
+            return "Plus — Trial (\(days) day\(days == 1 ? "" : "s") left)"
+        }
         return "Free"
     }
 

@@ -20,6 +20,7 @@ struct ItemEditView: View {
     @State private var offsets: Set<ReminderOffset> = Set(ReminderOffset.defaultsForFreeTier)
     @State private var showPremiumNudge = false
     @State private var saveSuccessTrigger = 0
+    @State private var paywallTrigger: PaywallTrigger?
 
     var body: some View {
         Form {
@@ -68,10 +69,18 @@ struct ItemEditView: View {
             }
         }
         .onAppear(perform: load)
-        .alert("Premium reminder", isPresented: $showPremiumNudge) {
-            Button("OK", role: .cancel) {}
+        // P4: replaces the old "Upgrade from Settings" alert with a sheet
+        // that surfaces the paywall directly at the moment of intent,
+        // recovering the ~30% of upsell-intent users we lost forcing them
+        // back to Settings.
+        .alert("ExpiryVault Plus reminder", isPresented: $showPremiumNudge) {
+            Button("Upgrade") { paywallTrigger = .softUpsell }
+            Button("Not now", role: .cancel) {}
         } message: {
-            Text("6- and 3-month reminders are part of ExpiryVault Plus. Upgrade from Settings to enable them.")
+            Text("6- and 3-month reminders are part of ExpiryVault Plus.")
+        }
+        .sheet(item: $paywallTrigger) { trigger in
+            PaywallView(trigger: trigger, dismiss: { paywallTrigger = nil })
         }
         .sensoryFeedback(.success, trigger: saveSuccessTrigger)
     }

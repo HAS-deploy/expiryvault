@@ -32,6 +32,9 @@ struct ExpiryVaultApp: App {
                 analytics.track(.appOpen)
                 PortfolioAnalytics.shared.track(PortfolioEvent.sessionStart)
                 appState.incrementSessionCount()
+                // Recompute the install-trial gate in case the user has
+                // crossed the day boundary while backgrounded (S2).
+                entitlements.refreshInstallTrialState()
             }
         }
     }

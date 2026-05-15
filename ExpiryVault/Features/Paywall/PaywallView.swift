@@ -104,7 +104,14 @@ struct PaywallView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 4)
             planRow(id: PricingConfig.monthlyProductID, title: "Monthly", subtitle: "Cancel anytime", badge: nil)
-            planRow(id: PricingConfig.lifetimeProductID, title: "Lifetime", subtitle: "Pay once — yours forever", badge: "No subscription")
+            // Lifetime tile is gated on the StoreKit product actually loading
+            // (H1). When `expiryvault_lifetime` isn't APPROVED in App Store
+            // Connect, `purchases.product(id:)` returns nil and we hide the
+            // row rather than render a tile whose CTA would fail with
+            // "Product not available".
+            if purchases.product(id: PricingConfig.lifetimeProductID) != nil {
+                planRow(id: PricingConfig.lifetimeProductID, title: "Lifetime", subtitle: "Pay once — yours forever", badge: "No subscription")
+            }
         }
     }
 
@@ -178,7 +185,9 @@ struct PaywallView: View {
                 Text("• " + PricingConfig.disclosureRenewalCharge)
                 Text("• " + PricingConfig.disclosureManage)
                 Text("• " + PricingConfig.disclosureFreeTrial)
-                Text("• Lifetime is a one-time non-consumable purchase with no recurring charges.")
+                if purchases.product(id: PricingConfig.lifetimeProductID) != nil {
+                    Text("• Lifetime is a one-time non-consumable purchase with no recurring charges.")
+                }
             }
             .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 4) {
@@ -258,10 +267,32 @@ struct PaywallView: View {
             analytics.track(.purchaseFailed, properties: [
                 "trigger_source": .source(source),
             ])
+            // Map the freeform error message to the canonical
+            // `PurchaseFailureReason` enum (per portfolio hard rule: never
+            // emit paywall.purchase_failed without a spec-shaped `reason`).
+            // Pre-fix this path put the raw localized error string in
+            // `reason`, which splattered the bucket into hundreds of distinct
+            // values and stopped failure dashboards from rolling up.
+            let lower = message.lowercased()
+            let reason: PurchaseFailureReason
+            if lower.contains("cancel") {
+                reason = .userCanceled
+            } else if lower.contains("network") || lower.contains("offline")
+                       || lower.contains("internet") {
+                reason = .networkError
+            } else if lower.contains("pending") {
+                reason = .pending
+            } else if lower.contains("storefront") || lower.contains("available") {
+                reason = .notInStorefront
+            } else {
+                reason = .unknown
+            }
             PortfolioAnalytics.shared.track(PortfolioEvent.paywallPurchaseFailed, [
                 "product_id": selectedProductID,
-                "reason": message,
-                "error": message,
+                "source": String(describing: trigger),
+                "is_sub": selectedProductID != PricingConfig.lifetimeProductID,
+                "reason": reason.rawValue,
+                "error_code": String(message.prefix(200)),
             ])
         }
     }

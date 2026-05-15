@@ -18,6 +18,8 @@ struct SettingsView: View {
     @State private var statusMessage: String?
     @State private var showingExporter = false
     @State private var exportDocument: ExportJSONDocument?
+    @State private var showDeleteAllConfirm = false
+    @AppStorage("portfolio.analytics.opted_out") private var analyticsOptedOut: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -60,7 +62,7 @@ struct SettingsView: View {
                 Button {
                     requestPaywall(.settings)
                 } label: {
-                    Label("Upgrade to Plus", systemImage: "sparkles")
+                    Label(entitlements.installTrialActive ? "Upgrade to keep Plus" : "Upgrade to Plus", systemImage: "sparkles")
                 }
             }
             Button {
@@ -72,7 +74,9 @@ struct SettingsView: View {
         } header: {
             Text("ExpiryVault Plus")
         } footer: {
-            if !entitlements.isPremium {
+            if entitlements.installTrialActive {
+                Text("You're on a free Plus trial — unlimited items and every reminder interval are unlocked. After the trial, the free tier covers \(PricingConfig.freeItemLimit) items with 30 / 7 / 1-day reminders.")
+            } else if !entitlements.isPremium {
                 Text("Unlimited tracked items, every reminder interval, premium filters.")
             }
         }
@@ -111,18 +115,39 @@ struct SettingsView: View {
                 Label("Export as JSON", systemImage: "square.and.arrow.up")
             }
             .disabled(items.isEmpty)
+            Button(role: .destructive) {
+                showDeleteAllConfirm = true
+            } label: {
+                Label("Delete all items", systemImage: "trash")
+            }
+            .disabled(items.isEmpty)
             if let statusMessage {
                 Text(statusMessage).font(.caption).foregroundStyle(.secondary)
             }
         }
+        .confirmationDialog(
+            "Delete every tracked item?",
+            isPresented: $showDeleteAllConfirm,
+            titleVisibility: .visible,
+        ) {
+            Button("Delete \(items.count) item\(items.count == 1 ? "" : "s")", role: .destructive) {
+                Task { await deleteAllItems() }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This permanently removes every item from this device and cancels their reminders. This can't be undone.")
+        }
     }
 
     private var privacySection: some View {
-        Section("Privacy") {
+        Section {
             NavigationLink {
                 PrivacyView()
             } label: {
                 Label("How ExpiryVault handles your data", systemImage: "lock.shield")
+            }
+            Toggle(isOn: analyticsEnabledBinding) {
+                Label("Anonymous usage analytics", systemImage: "chart.bar.xaxis")
             }
             Link(destination: URL(string: "https://has-deploy.github.io/expiryvault/privacy.html")!) {
                 Label("Privacy policy", systemImage: "link")
@@ -130,7 +155,25 @@ struct SettingsView: View {
             Link(destination: URL(string: "https://has-deploy.github.io/expiryvault/terms.html")!) {
                 Label("Terms of Use", systemImage: "link")
             }
+        } header: {
+            Text("Privacy")
+        } footer: {
+            Text("When on, ExpiryVault sends coarse, anonymous events (e.g. screen viewed, paywall shown). Item names, notes, and reference codes are never sent. Turn off any time.")
         }
+    }
+
+    private var analyticsEnabledBinding: Binding<Bool> {
+        Binding(
+            get: { !analyticsOptedOut },
+            set: { newValue in
+                analyticsOptedOut = !newValue
+                if newValue {
+                    PortfolioAnalytics.shared.optIn()
+                } else {
+                    PortfolioAnalytics.shared.optOut()
+                }
+            }
+        )
     }
 
     private var moreFromUsSection: some View {
@@ -155,7 +198,7 @@ struct SettingsView: View {
             Link(destination: URL(string: "https://has-deploy.github.io/expiryvault/support.html")!) {
                 Label("Support", systemImage: "questionmark.circle")
             }
-            Text("ExpiryVault may collect anonymous usage metrics to improve the app. No personal document content is collected.")
+            Text("ExpiryVault can send anonymous usage metrics to help improve the app. Toggle this on or off any time in Privacy. No personal document content is ever collected.")
                 .font(.footnote).foregroundStyle(.secondary)
         }
     }
@@ -182,6 +225,22 @@ struct SettingsView: View {
         await purchases.restore()
         restoring = false
         statusMessage = entitlements.isPremium ? "Purchases restored." : "No previous purchases found."
+    }
+
+    private func deleteAllItems() async {
+        // Cancel every scheduled reminder for this app first, then delete the
+        // model objects in one save. Matches the "Everything stays on iPhone"
+        // promise: a single tap to nuke the whole local store.
+        let snapshot = Array(items)
+        await NotificationService.shared.cancelAll()
+        for item in snapshot {
+            context.delete(item)
+        }
+        try? context.save()
+        statusMessage = "All items deleted."
+        PortfolioAnalytics.shared.track(PortfolioEvent.settingsDeleteDataTapped, [
+            "items_deleted": snapshot.count,
+        ])
     }
 
     private var permissionLabel: String {

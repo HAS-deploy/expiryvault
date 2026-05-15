@@ -85,12 +85,18 @@ struct OnboardingView: View {
     }
 
     private func finish() async {
-        let granted = await NotificationService.shared.requestAuthorization()
+        // S3: don't prompt for notifications here. Industry-standard for a
+        // reminders app is to ask at the moment of intent (first item save)
+        // so the user has context for why the permission matters. The
+        // current status is read instead so the analytics dimension is still
+        // populated.
+        let status = await NotificationService.shared.currentAuthorization()
+        let alreadyGranted = status == .authorized || status == .provisional
         analytics.track(.onboardingCompleted, properties: [
-            "success": .bool(granted),
+            "success": .bool(alreadyGranted),
         ])
         PortfolioAnalytics.shared.track(PortfolioEvent.onboardingCompleted, [
-            "notifications_granted": granted,
+            "notifications_granted": alreadyGranted,
             "total_seconds": Int(Date().timeIntervalSince(startedAt)),
             "steps_skipped": 0,
         ])
