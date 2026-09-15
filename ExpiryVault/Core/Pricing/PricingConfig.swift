@@ -59,6 +59,13 @@ enum PricingConfig {
     static let annualTrialDays: Int = 30
     static let annualTrialDescription: String = "1-month free trial, then $34.99/year"
 
+    // MARK: Install-time trial (local, not ASC)
+
+    /// Days of Plus granted from first launch on this device. Source of
+    /// truth for `EntitlementStore.installTrialActive` / remaining-days.
+    /// Independent of the yearly StoreKit intro offer (`annualTrialDays`).
+    static let installTrialDays: Int = 14
+
     // MARK: 3.1.2(a) disclosures (rendered verbatim by the paywall)
 
     static let disclosurePaymentCharged =

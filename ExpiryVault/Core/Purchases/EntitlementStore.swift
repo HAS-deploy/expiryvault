@@ -44,9 +44,9 @@ final class EntitlementStore: ObservableObject {
     /// and `.max` for paying subscribers (so callers can skip the math).
     var installTrialDaysRemaining: Int {
         if isPremium { return .max }
-        guard let start = firstLaunchAt else { return PricingConfig.annualTrialDays }
+        guard let start = firstLaunchAt else { return PricingConfig.installTrialDays }
         let elapsed = Calendar.current.dateComponents([.day], from: start, to: clock()).day ?? 0
-        return max(0, PricingConfig.annualTrialDays - elapsed)
+        return max(0, PricingConfig.installTrialDays - elapsed)
     }
 
     /// True if the user can use Plus features right now — either because
@@ -94,7 +94,7 @@ final class EntitlementStore: ObservableObject {
 
     /// Force a recompute of `installTrialActive` against the clock. Useful
     /// at scene activation if the user has been backgrounded across the
-    /// 30-day boundary.
+    /// install-trial boundary.
     func refreshInstallTrialState() {
         installTrialActive = computeInstallTrialActive()
     }

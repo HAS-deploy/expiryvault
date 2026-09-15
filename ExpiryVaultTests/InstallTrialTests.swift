@@ -22,30 +22,41 @@ final class InstallTrialTests: XCTestCase {
         return EntitlementStore(defaults: defaults, clock: { now })
     }
 
-    // MARK: Trial active during 30d
+    // MARK: Trial window SoT
+
+    func testInstallTrialWindowIsFourteenDays() {
+        XCTAssertEqual(PricingConfig.installTrialDays, 14)
+        // Yearly StoreKit intro stays on ASC / P1M — do not conflate it
+        // with the local install-time window.
+        XCTAssertEqual(PricingConfig.annualTrialDays, 30)
+        XCTAssertNotEqual(PricingConfig.installTrialDays, PricingConfig.annualTrialDays)
+    }
+
+    // MARK: Trial active during installTrialDays
 
     func testInstallTrialActiveOnDayZero() {
         let store = makeStore(now: Date())
         XCTAssertTrue(store.installTrialActive)
-        XCTAssertEqual(store.installTrialDaysRemaining, PricingConfig.annualTrialDays)
+        XCTAssertEqual(store.installTrialDaysRemaining, PricingConfig.installTrialDays)
         XCTAssertTrue(store.hasPlusAccess)
     }
 
-    func testInstallTrialActiveAtDay29() {
+    func testInstallTrialActiveAtDay13() {
         let start = Date(timeIntervalSince1970: 1_700_000_000)
-        let day29 = Calendar.current.date(byAdding: .day, value: 29, to: start)!
-        let store = makeStore(now: day29, firstLaunchAt: start)
+        let lastActiveDay = PricingConfig.installTrialDays - 1
+        let day13 = Calendar.current.date(byAdding: .day, value: lastActiveDay, to: start)!
+        let store = makeStore(now: day13, firstLaunchAt: start)
         XCTAssertTrue(store.installTrialActive)
         XCTAssertEqual(store.installTrialDaysRemaining, 1)
         XCTAssertTrue(store.hasPlusAccess)
     }
 
-    // MARK: Trial inactive after 30d
+    // MARK: Trial inactive after installTrialDays
 
-    func testInstallTrialInactiveAtDay30() {
+    func testInstallTrialInactiveAtDay14() {
         let start = Date(timeIntervalSince1970: 1_700_000_000)
-        let day30 = Calendar.current.date(byAdding: .day, value: 30, to: start)!
-        let store = makeStore(now: day30, firstLaunchAt: start)
+        let day14 = Calendar.current.date(byAdding: .day, value: PricingConfig.installTrialDays, to: start)!
+        let store = makeStore(now: day14, firstLaunchAt: start)
         XCTAssertFalse(store.installTrialActive)
         XCTAssertEqual(store.installTrialDaysRemaining, 0)
         XCTAssertFalse(store.hasPlusAccess)
@@ -111,9 +122,13 @@ final class InstallTrialTests: XCTestCase {
         }
         try ctx.save()
 
-        // Day 60 — trial elapsed, user drops to free tier.
-        let day60 = Calendar.current.date(byAdding: .day, value: 60, to: trialStart)!
-        let postTrialStore = makeStore(now: day60, firstLaunchAt: trialStart)
+        // One day past the install-trial window — user drops to free tier.
+        let postExpiry = Calendar.current.date(
+            byAdding: .day,
+            value: PricingConfig.installTrialDays + 1,
+            to: trialStart
+        )!
+        let postTrialStore = makeStore(now: postExpiry, firstLaunchAt: trialStart)
         XCTAssertFalse(postTrialStore.hasPlusAccess)
         XCTAssertFalse(postTrialStore.isPremium)
 
